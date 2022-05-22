@@ -1,6 +1,8 @@
 from selenium import webdriver
 import time
 import const
+import re
+import pandas as pd
 
 # ログインページに遷移
 driver = webdriver.Chrome('C:\Chrome\chromedriver.exe')
@@ -25,6 +27,17 @@ driver.get('https://github.com/' + const.UNAME)
 
 # テーブル内容取得
 elem = driver.find_element_by_xpath("//*")
-source_code = elem.get_attribute("outerHTML")
+html = elem.get_attribute("outerHTML")
 
-print(source_code)
+# 特定の箇所を抽出
+patter_count = "data-count=" + r'"[0-9]"'  # 「data-count=」を抽出
+data_count = re.findall(patter_count, html)
+
+patter_date = 'data-date=' + r'"[0-9]{4}\-[0-9]{2}\-[0-9]{2}"'
+data_date = re.findall(patter_date, html)
+
+# dfの作成
+df = pd.DataFrame({"date":data_date, "count":data_count})
+df['count'] = df['count'].str.strip('data-count=')
+df['date'] = df['date'].str.strip('data-date=')
+print(df)
