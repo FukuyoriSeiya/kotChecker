@@ -1,11 +1,9 @@
 import datetime
 from random import random
-from turtle import color
 import jpholiday
 import calendar
 import pandas as pd
 import matplotlib.pyplot as plt
-import japanize_matplotlib
 import random
 import seaborn as sns
 

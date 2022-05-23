@@ -4,40 +4,47 @@ import const
 import re
 import pandas as pd
 
-# ログインページに遷移
-driver = webdriver.Chrome('C:\Chrome\chromedriver.exe')
-driver.get('https://github.com/login')
 
-time.sleep(1)
+def getGithub():
+    # ログインページに遷移
+    driver = webdriver.Chrome('C:/Chrome/chromedriver.exe')
+    driver.get('https://github.com/login')
 
-# ログイン処理
-mail = driver.find_element_by_name('login')
-password = driver.find_element_by_name('password')
+    time.sleep(1)
 
-mail.clear()
-password.clear()
+    # ログイン処理
+    mail = driver.find_element_by_name('login')
+    password = driver.find_element_by_name('password')
 
-mail.send_keys(const.EMAIL)
-password.send_keys(const.PASSWORD)
+    mail.clear()
+    password.clear()
 
-mail.submit()
+    mail.send_keys(const.EMAIL)
+    password.send_keys(const.PASSWORD)
 
-# マイページに遷移
-driver.get('https://github.com/' + const.UNAME)
+    mail.submit()
 
-# テーブル内容取得
-elem = driver.find_element_by_xpath("//*")
-html = elem.get_attribute("outerHTML")
+    # マイページに遷移
+    driver.get('https://github.com/' + const.UNAME)
 
-# 特定の箇所を抽出
-patter_count = "data-count=" + r'"[0-9]"'  # 「data-count=」を抽出
-data_count = re.findall(patter_count, html)
+    # テーブル内容取得
+    elem = driver.find_element_by_xpath("//*")
+    html = elem.get_attribute("outerHTML")
 
-patter_date = 'data-date=' + r'"[0-9]{4}\-[0-9]{2}\-[0-9]{2}"'
-data_date = re.findall(patter_date, html)
+    # 特定の箇所を抽出
+    patter_count = "data-count=" + r'"[0-9]"'  # 「data-count=」を抽出
+    data_count = re.findall(patter_count, html)
 
-# dfの作成
-df = pd.DataFrame({"date":data_date, "count":data_count})
-df['count'] = df['count'].str.strip('data-count=')
-df['date'] = df['date'].str.strip('data-date=')
-print(df)
+    patter_date = 'data-date=' + r'"[0-9]{4}\-[0-9]{2}\-[0-9]{2}"'
+    data_date = re.findall(patter_date, html)
+
+    # dfの作成
+    df = pd.DataFrame({"date": data_date, "count": data_count})
+    df['count'] = df['count'].str.strip('data-count=')
+    df['date'] = df['date'].str.strip('data-date=')
+    
+    # データ整形
+    df['count'] = df['count'].str.replace('"',"").astype(int)
+    df['date'] = pd.to_datetime(df['date'].str.replace('"',""))
+    print(df)
+    return df
